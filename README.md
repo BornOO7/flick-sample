@@ -17,4 +17,4 @@ Flick is a React Native application that provides a selfie camera interface usin
 - Standard Metro React Native app steup.
 
 ## Feel free to contact:
-Phone No - saad.shaik321@gmail.com
+Email - saad.shaik321@gmail.com
