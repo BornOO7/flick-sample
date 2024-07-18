@@ -12,7 +12,6 @@
   "dependencies": {
     "@react-native-firebase/app": "^20.2.1",
     "@react-native-firebase/ml": "^20.2.1",
-    "@react-native-firebase/mlkit": "^0.0.4",
     "@react-native-ml-kit/face-detection": "^1.3.2",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/stack": "^6.4.1",
@@ -22,7 +21,9 @@
     "react-native-face-detection": "^0.1.1",
     "react-native-gesture-handler": "^2.17.1",
     "react-native-reanimated": "^3.14.0",
-    "react-native-vision-camera": "^4.5.0"
+    "react-native-vision-camera": "^3.7.1",
+    "react-native-worklets-core": "^1.3.3",
+    "vision-camera-trustee-face-detector-v3": "^1.5.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
