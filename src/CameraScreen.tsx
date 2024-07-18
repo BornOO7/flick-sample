@@ -5,7 +5,8 @@ import { runOnJS } from 'react-native-reanimated';
 import { Canvas, Rect } from '@shopify/react-native-skia';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { detectFaces } from 'react-native-ml-kit';
+import { Worklets } from 'react-native-worklets-core';
+import { scanFaces, type Face } from 'vision-camera-trustee-face-detector-v3';
 import { RootStackParamList } from './types';
 
 type CameraScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Camera'>;
@@ -14,7 +15,7 @@ const CameraScreen: React.FC = () => {
   const devices = useCameraDevices();
   const device = devices.find((d) => d.position === 'front'); // Select the front camera
   const [cameraPermissionStatus, setCameraPermissionStatus] = useState<CameraPermissionStatus>('not-determined');
-  const [faces, setFaces] = useState<any[]>([]);
+  const [faces, setFaces] = useState<Face[]>([]);
   const camera = useRef<Camera>(null);
   const navigation = useNavigation<CameraScreenNavigationProp>();
 
@@ -25,11 +26,21 @@ const CameraScreen: React.FC = () => {
     })();
   }, []);
 
-  const frameProcessor = useFrameProcessor(async (frame) => {
+  const handleFaceDetection = Worklets.createRunInJsFn((faces: Face[]) => {
+    runOnJS(setFaces)(faces);
+  });
+
+  const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
-    const detectedFaces = await detectFaces(frame);
-    runOnJS(setFaces)(detectedFaces);
-  }, []);
+    try {
+      const scannedFaces = scanFaces(frame);
+      if (scannedFaces.length > 0) {
+        handleFaceDetection(scannedFaces);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }, [handleFaceDetection]);
 
   const captureImage = async () => {
     if (camera.current) {
@@ -60,6 +71,7 @@ const CameraScreen: React.FC = () => {
             device={device}
             isActive={true}
             frameProcessor={frameProcessor}
+            pixelFormat="yuv"
           />
           <Canvas style={StyleSheet.absoluteFill}>
             {faces.map((face, index) => (
@@ -110,8 +122,8 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   cameraContainer: {
-    width: '100%',
-    height: '100%',
+    width: 300,
+    height: 500,
     borderRadius: 10,
     overflow: 'hidden',
   },
